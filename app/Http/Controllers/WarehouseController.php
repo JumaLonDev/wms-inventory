@@ -3,55 +3,73 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Warehouse;
 
 class WarehouseController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the warehouses.
      */
     public function index()
     {
-        //
+        $warehouses = Warehouse::all();
+        return response()->json($warehouses);
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Store a newly created warehouse in storage.
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+        ]);
+
+        $warehouse = Warehouse::create($request->all());
+
+        return response()->json([
+            'message' => 'Warehouse created successfully',
+            'warehouse' => $warehouse,
+        ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified warehouse.
      */
     public function show(string $id)
     {
-        //
-    }
+        $warehouse = Warehouse::find($id);
+        
+        if (!$warehouse) {
+            return response()->json(['message' => 'Warehouse not found'], 404);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return response()->json($warehouse);
     }
-
+    
     /**
-     * Update the specified resource in storage.
+     * Update the specified warehouse in storage.
      */
     public function update(Request $request, string $id)
     {
-        //
+        $warehouse = Warehouse::find($id);
+
+        if (!$warehouse) {
+            return response()->json(['message' => 'warehouse not found'], 404);
+        }
+
+        $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'location' => 'sometimes|string|max:255',
+        ]);
+
+        $warehouse->update($request->all());
+
+        return response()->json([
+            'message' => 'Warehouse updated successfully',
+            'warehouse' => $warehouse,
+        ]);
     }
 
     /**
@@ -59,6 +77,14 @@ class WarehouseController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $warehouse = Warehouse::find($id);
+
+        if (!$warehouse) {
+            return response()->json(['message' => 'Warehouse not found'], 404);
+        }
+
+        $warehouse->delete();
+
+        return response()->json(['message' => 'Warehouse deleted successfully']);
     }
 }
